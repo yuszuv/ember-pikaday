@@ -7,27 +7,38 @@ export default Ember.Component.extend({
   attributeBindings: ['readonly', 'disabled', 'placeholder', 'type'],
   type: 'text',
 
-  setupPikaday: Ember.on('didInsertElement', function() {
-    var that = this;
-    var firstDay = this.get('firstDay');
+  // options
+  value: null,
+  format: 'DD.MM.YYYY',
+  theme: null,
+  yearRange: null,
+  readOnly: null,
+  placeholder: null,
+  disabled: null,
+  firstDay: null,
+  minDate: null,
+  maxDate: null,
+  useUTC: null,
+  i18n: null,
 
-    var options = {
+  setupPikaday: Ember.on('didInsertElement', function() {
+    let that = this;
+    let firstDay = this.get('firstDay');
+
+    let options = {
       field: this.$()[0],
       onOpen: Ember.run.bind(this, this.onPikadayOpen),
       onClose: Ember.run.bind(this, this.onPikadayClose),
       onSelect: Ember.run.bind(this, this.onPikadaySelect),
       onDraw: Ember.run.bind(this, this.onPikadayRedraw),
-      firstDay: (typeof firstDay !== 'undefined') ? parseInt(firstDay, 10) : 1,
-      format: this.get('format') || 'DD.MM.YYYY',
+      firstDay: firstDay ? parseInt(firstDay, 10) : 1,
+      format: this.get('format'),
       yearRange: that.determineYearRange(),
-      minDate: this.get('minDate') || null,
-      maxDate: this.get('maxDate') || null,
-      theme: this.get('theme') || null
+      minDate: this.get('minDate'),
+      maxDate: this.get('maxDate'),
+      theme: this.get('theme'),
+      i18n: this.get('i18n')
     };
-
-    if (this.get('i18n')) {
-      options.i18n = this.get('i18n');
-    }
 
     var pikaday = new Pikaday(options);
 
