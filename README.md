@@ -127,20 +127,6 @@ The `maxDate` attribute is supported as a binding so you can set the latest date
 </label>
 ```
 
-## Return dates in UTC time zone
-
-The date returned by ember-pikaday is in your local time zone due to the JavaScript default behaviour of `new Date()`. This can lead to problems when your application converts the date to UTC. In additive time zones (e.g. +0010) the resulting converted date could be yesterdays date. You can force the component to return a date with the UTC time zone by passing `useUTC=true` to it.
-
-```handlebars
-<label>
-  Start date:
-  {{pikaday-input value=startsAt useUTC=true}}
-</label>
-```
-
-ember-pikaday will not automatically convert the date to UTC if your application is setting the datepicker value directly!
-
-
 ## Localization
 
 Localizing the datepicker is possible in two steps. To localize the output of the datepicker, this is the formatted string visible in the input field, you simply add the correct Moment.js locale file to your applications `Brocfile.js`.

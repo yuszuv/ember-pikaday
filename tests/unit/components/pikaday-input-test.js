@@ -23,12 +23,14 @@ test('clicking the input opens the pikaday dialog', function(assert) {
 });
 
 test('selecting a date should update the value attribute', function(assert) {
+  this.subject({'value': new Date(2014, 4, 1)});
+
   var interactor = openDatepicker(this.$());
 
   interactor.selectDate(new Date(2013, 3, 28));
 
   var date = this.subject().get('value');
-
+  
   assert.equal(date.getFullYear(), 2013);
   assert.equal(date.getMonth(), 3);
   assert.equal(date.getDate(), 28);
@@ -137,19 +139,6 @@ test('default i18n configuration of Pikaday can be changed', function(assert) {
   assert.equal($('.pika-select-month option:selected').text(), 'März');
 });
 
-test('if utc is set the date returned from pikaday should be in UTC format', function(assert) {
-  this.subject({ useUTC: true });
-
-  var interactor = openDatepicker(this.$());
-
-  interactor.selectDate(new Date(2013, 3, 28));
-
-  var date = this.subject().get('value');
-
-  assert.equal(date.getUTCFullYear(), 2013);
-  assert.equal(date.getUTCMonth(), 3);
-  assert.equal(date.getUTCDate(), 28);
-});
 
 test('the input tag has the placeholder attribute and the correct value if it has been set on the component', function (assert) {
   this.subject({ placeholder: 'I am the placeholder'});

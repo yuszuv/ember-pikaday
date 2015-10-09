@@ -2,6 +2,10 @@
 
 import Ember from 'ember';
 
+let isDate = function(obj) {
+  return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime());
+};
+
 export default Ember.Component.extend({
   tagName: 'input',
   attributeBindings: ['readonly', 'disabled', 'placeholder', 'type'],
@@ -16,37 +20,55 @@ export default Ember.Component.extend({
   readOnly: null,
   placeholder: null,
   disabled: null,
-  firstDay: null,
+  firstDay: 1,
   minDate: null,
   maxDate: null,
-  useUTC: null,
-  i18n: undefined,
+  i18n: null,
 
-  valueMoment: Ember.computed('value', function() {
-    let val = this.get('value');
-    let format = this.get('format');
-    return moment(val, format);
+  // properties
+  dateValue: Ember.computed('value', function(){
+    return isDate(this.get('value'));
   }),
 
   didInsertElement() {
     let that = this;
-    let firstDay = this.get('firstDay');
 
     let options = {
       field: this.$()[0],
       onOpen: Ember.run.bind(this, this.onPikadayOpen),
       onClose: Ember.run.bind(this, this.onPikadayClose),
       onSelect: Ember.run.bind(this, this.onPikadaySelect),
-      onDraw: Ember.run.bind(this, this.onPikadayRedraw),
-      firstDay: (firstDay != null) ? parseInt(firstDay, 10) : 1,
-      format: this.get('format'),
-      yearRange: that.determineYearRange(),
-      minDate: this.get('minDate'),
-      maxDate: this.get('maxDate'),
-      theme: this.get('theme')
+      onDraw: Ember.run.bind(this, this.onPikadayRedraw)
     };
 
-    if (this.get('i18n')) { options.i18n = this.get('i18n'); }
+    if (this.get('firstDay') != null) {
+      options.firstDay = parseInt(this.get('firstDay'), 10);
+    }
+
+    if (this.get('format') != null) {
+      options.format = this.get('format');
+    }
+
+    if (this.get('yearRange') != null) {
+      options.yearRange = this.determineYearRange();
+    }
+
+    if (this.get('minDate') != null) {
+      options.minDate = this.get('minDate');
+    }
+
+    if (this.get('maxDate') != null) {
+      options.maxDate = this.get('maxDate');
+    }
+
+    if (this.get('theme') != null) {
+      options.theme = this.get('theme');
+    }
+
+    if (this.get('i18n') != null) { 
+      options.i18n = this.get('i18n');
+    }
+
 
     let pikaday = new Pikaday(options);
 
@@ -67,12 +89,17 @@ export default Ember.Component.extend({
     });
   },
 
-  teardownPikaday: Ember.on('willDestroyElement', function() {
+  willDestroyElement() {
     this.get('pikaday').destroy();
-  }),
+  },
 
   setPikadayDate: function() {
-    this.get('pikaday').setDate(this.get('value'), true);
+    let val = this.get('value');
+    if (!isDate(val)) {
+      val = moment(val, this.get('format'));
+      val = val.toDate();
+    }
+    this.get('pikaday').setDate(val, true);
   },
 
   setMinDate: function() {
@@ -92,20 +119,15 @@ export default Ember.Component.extend({
   },
 
   onPikadaySelect: function() {
-    this.userSelectedDate();
+    if (this.get('dateValue')) {
+      this.set('value', this.get('pikaday').getDate());
+    }
+    else {
+      this.set('value', this.get('pikaday').toString());
+    }
   },
 
   onPikadayRedraw: Ember.K,
-
-  userSelectedDate: function() {
-    let selectedDate = this.get('pikaday').getDate();
-
-    if (this.get('useUTC')) {
-      selectedDate = moment.utc([selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()]).toDate();
-    }
-
-    this.set('value', selectedDate);
-  },
 
   determineYearRange: function() {
     let yearRange = this.get('yearRange');
